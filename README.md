@@ -87,17 +87,62 @@ ANTHROPIC_API_KEY="sk-..."  # For emergency diagnosis calls
 
 ## Headless Model Access
 
-The recovery script can call any LLM API for diagnosis when your assistant is dead. Configure one:
+The recovery script can call any LLM API for diagnosis when your assistant is dead. Here are working examples for each provider:
 
-| Provider | Env Variable | Endpoint |
-|----------|--------------|----------|
-| Claude | `ANTHROPIC_API_KEY` | `api.anthropic.com` |
-| GPT | `OPENAI_API_KEY` | `api.openai.com` |
-| Gemini | `GOOGLE_API_KEY` | `generativelanguage.googleapis.com` |
-| Local (LM Studio) | — | `localhost:1234/v1` |
-| Local (Ollama) | — | `localhost:11434/api` |
+### Claude (Anthropic)
+```bash
+curl -s https://api.anthropic.com/v1/messages \
+  -H "x-api-key: $ANTHROPIC_API_KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-sonnet-4-20250514",
+    "max_tokens": 1024,
+    "messages": [{"role": "user", "content": "Diagnose this..."}]
+  }'
+```
 
-The default script uses Claude, but you can modify `safety-net.sh` to call any provider. The pattern is model-agnostic — any headless API that accepts a prompt works.
+### GPT (OpenAI)
+```bash
+curl -s https://api.openai.com/v1/chat/completions \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [{"role": "user", "content": "Diagnose this..."}]
+  }'
+```
+
+### Gemini (Google)
+```bash
+curl -s "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$GOOGLE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contents": [{"parts": [{"text": "Diagnose this..."}]}]
+  }'
+```
+
+### LM Studio (Local)
+```bash
+curl -s http://localhost:1234/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "local-model",
+    "messages": [{"role": "user", "content": "Diagnose this..."}]
+  }'
+```
+
+### Ollama (Local)
+```bash
+curl -s http://localhost:11434/api/generate \
+  -d '{
+    "model": "llama2",
+    "prompt": "Diagnose this...",
+    "stream": false
+  }'
+```
+
+The default script uses Claude. To switch providers, edit the `call_claude_for_help()` function in `safety-net.sh`.
 
 ## Built For
 
