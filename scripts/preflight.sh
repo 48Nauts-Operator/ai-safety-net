@@ -44,5 +44,11 @@ echo "✅ Logged to CHANGELOG.md"
 disown $!
 echo "✅ Safety net active (${DELAY_MINUTES} min)"
 
+# 4. Log to audit chain (if available)
+if [ -f "$HOME/clawd/scripts/audit-log.sh" ]; then
+    "$HOME/clawd/scripts/audit-log.sh" "preflight" "$DESCRIPTION" '{"backup":"'$TIMESTAMP'"}' > /dev/null
+    echo "✅ Logged to audit chain"
+fi
+
 echo ""
 echo "Ready. Proceed with: $DESCRIPTION"
