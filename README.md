@@ -82,8 +82,22 @@ Edit `config.sh`:
 DELAY_MINUTES=5           # How long safety net waits
 HEALTH_ENDPOINT="http://localhost:3000/health"
 BACKUP_DIR="$HOME/clawd/backups/config"
-ANTHROPIC_API_KEY="sk-..."  # For emergency Claude calls
+ANTHROPIC_API_KEY="sk-..."  # For emergency diagnosis calls
 ```
+
+## Headless Model Access
+
+The recovery script can call any LLM API for diagnosis when your assistant is dead. Configure one:
+
+| Provider | Env Variable | Endpoint |
+|----------|--------------|----------|
+| Claude | `ANTHROPIC_API_KEY` | `api.anthropic.com` |
+| GPT | `OPENAI_API_KEY` | `api.openai.com` |
+| Gemini | `GOOGLE_API_KEY` | `generativelanguage.googleapis.com` |
+| Local (LM Studio) | — | `localhost:1234/v1` |
+| Local (Ollama) | — | `localhost:11434/api` |
+
+The default script uses Claude, but you can modify `safety-net.sh` to call any provider. The pattern is model-agnostic — any headless API that accepts a prompt works.
 
 ## Built For
 
