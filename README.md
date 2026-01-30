@@ -142,6 +142,19 @@ curl -s http://localhost:11434/api/generate \
   }'
 ```
 
+### OpenCode (via ACP)
+```bash
+# Start session
+SESSION=$(curl -s http://localhost:9777/sessions -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"path": "/tmp/recovery"}' | jq -r '.id')
+
+# Send prompt
+curl -s "http://localhost:9777/sessions/$SESSION/message" -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"content": "Diagnose this..."}'
+```
+
 The default script uses Claude. To switch providers, edit the `call_claude_for_help()` function in `safety-net.sh`.
 
 ## Built For
