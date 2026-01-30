@@ -87,7 +87,116 @@ ANTHROPIC_API_KEY="sk-..."  # For emergency diagnosis calls
 
 ## Headless Model Access
 
-The recovery script can call any LLM API for diagnosis when your assistant is dead. Here are working examples for each provider:
+### What is "Headless"?
+
+**Headless** = running an AI model without a user interface. Instead of typing in ChatGPT or Claude.ai, you send a prompt programmatically and get a response back.
+
+Think of it like this:
+- **Normal:** You open ChatGPT, type "help me debug this", read the response
+- **Headless:** Your script sends "help me debug this" via API/CLI, gets the response as text, processes it automatically
+
+This is what allows the safety net to call an AI for help when your main assistant is dead — no human interaction needed.
+
+### Try It Manually First
+
+Before using in scripts, try these commands in your terminal to understand how each works:
+
+---
+
+### Claude CLI
+```bash
+# Install
+npm install -g @anthropic-ai/claude-code
+
+# Run headless (one-shot, no interactive UI)
+claude --prompt "What is 2+2?" --model claude-sonnet-4-20250514 --output-format text
+
+# With a file for context
+claude --prompt "Diagnose this error log" --model claude-sonnet-4-20250514 --file ./error.log
+```
+
+**Key flags:**
+| Flag | Purpose |
+|------|---------|
+| `--prompt` | Your question/instruction |
+| `--model` | Which Claude model to use |
+| `--output-format text` | Get plain text (not JSON) |
+| `--file` | Attach a file for context |
+
+---
+
+### OpenCode CLI
+```bash
+# Install
+go install github.com/opencode-ai/opencode@latest
+
+# Run headless
+opencode --prompt "What is 2+2?" --model anthropic/claude-sonnet
+
+# With working directory context  
+opencode --prompt "Fix the bug in main.go" --cwd ./myproject
+```
+
+**Key flags:**
+| Flag | Purpose |
+|------|---------|
+| `--prompt` | Your question/instruction |
+| `--model` | Provider/model (e.g., `anthropic/claude-sonnet`, `openai/gpt-4o`) |
+| `--cwd` | Working directory for file context |
+
+---
+
+### Gemini CLI
+```bash
+# Install
+npm install -g @anthropic-ai/gemini-cli  # or use Google's official CLI
+
+# Run headless
+gemini --prompt "What is 2+2?" --model gemini-pro
+
+# Alternative: Direct API call
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$GOOGLE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"contents": [{"parts": [{"text": "What is 2+2?"}]}]}'
+```
+
+---
+
+### LM Studio (Local)
+```bash
+# 1. Start LM Studio and load a model
+# 2. Enable "Local Server" (default: http://localhost:1234)
+# 3. Call it like OpenAI:
+
+curl http://localhost:1234/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "local-model",
+    "messages": [{"role": "user", "content": "What is 2+2?"}]
+  }'
+```
+
+---
+
+### Ollama (Local)
+```bash
+# Install: https://ollama.ai
+# Pull a model
+ollama pull llama2
+
+# Run headless (one-shot)
+ollama run llama2 "What is 2+2?" --nowordwrap
+
+# Or via API
+curl http://localhost:11434/api/generate \
+  -d '{"model": "llama2", "prompt": "What is 2+2?", "stream": false}'
+```
+
+---
+
+### Raw API Calls (curl)
+
+If you prefer direct API calls in your scripts:
 
 ### Claude (Anthropic)
 ```bash
